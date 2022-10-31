@@ -2229,6 +2229,7 @@ if ( ! class_exists( 'WP_Legal_Pages_Admin' ) ) {
 					$city_state  = isset( $lp_general['cityState'] ) ? $lp_general['cityState'] : '';
 					$country     = isset( $lp_general['country'] ) ? $lp_general['country'] : '';
 					$email       = isset( $lp_general['email'] ) ? $lp_general['email'] : '';
+					$address     = isset( $lp_general['address'] ) ? $lp_general['address'] : '';
 					if ( '1' === $is_pro ) {
 						$date             = isset( $lp_general['date'] ) ? $lp_general['date'] : '';
 						$days             = isset( $lp_general['days'] ) ? $lp_general['days'] : '';
