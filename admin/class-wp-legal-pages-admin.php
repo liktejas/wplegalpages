@@ -682,6 +682,88 @@ if ( ! class_exists( 'WP_Legal_Pages_Admin' ) ) {
 			);
 		}
 		/**
+		 * Registers the WP Legal Pages Gutenberg block.
+		 *
+		 * @return void
+		 */
+		public function wplegalpages_register_legal_template_block() {
+			if ( ! function_exists( 'register_block_type' ) ) {
+				return;
+			}
+			$is_block_enabled = get_option( 'wplegalpages_is_block_enabled', 0 );
+			if ( ! $is_block_enabled ) {
+				return;
+			}
+			wp_register_script(
+				$this->plugin_name . '-legal-template-block',
+				plugin_dir_url( __FILE__ ) . 'js/blocks/wplegalpages-legal-template-block.js',
+				array(
+					'jquery',
+					'wp-blocks',
+					'wp-i18n',
+					'wp-editor',
+					'wp-element',
+					'wp-components',
+				),
+				$this->version,
+				true
+			);
+
+			wp_localize_script(
+				$this->plugin_name . '-legal-template-block',
+				'wplp_localize_data',
+				array(
+					'ajaxurl'           => admin_url( 'admin-ajax.php' ),
+					'wplpurl'           => WPL_LITE_PLUGIN_URL,
+					'siteurl'           => site_url(),
+					'admin_url'         => admin_url(),
+					'wplegal_app_url'   => WPLEGAL_APP_URL,
+					'_ajax_nonce'       => wp_create_nonce( 'wp-legal-pages' ),
+					'all_legal_pages'   => $this->wplegalpages_get_generated_legal_pages(),
+					'is_block_enabled'  => $is_block_enabled,
+				)
+			);
+
+			register_block_type(
+				'wplegal/legal-template',
+				array(
+					'editor_script' => $this->plugin_name . '-legal-template-block',
+				)
+			);
+		}
+
+		/**
+		 * Retrieves all published legal pages marked with the 'is_legal' post meta.
+		 *
+		 * This function queries the database directly to fetch all posts that are published
+		 * and have the meta key 'is_legal'. It then strips shortcodes and Gutenberg block 
+		 * comments from the post content for clean output.
+		 *
+		 * @global wpdb $wpdb WordPress database access object.
+		 *
+		 * @return array List of objects containing the ID, title, and cleaned post content of each legal page.
+		 */
+		public function wplegalpages_get_generated_legal_pages() {
+			global $wpdb;
+			$post_tbl     = $wpdb->prefix . 'posts';
+			$postmeta_tbl = $wpdb->prefix . 'postmeta';
+			$pagesresult  = $wpdb->get_results( $wpdb->prepare( 'SELECT ptbl.ID, ptbl.post_content, ptbl.post_title FROM ' . $post_tbl . ' as ptbl , ' . $postmeta_tbl . ' as pmtbl WHERE ptbl.ID = pmtbl.post_id and ptbl.post_status = %s AND pmtbl.meta_key = %s', array( 'publish', 'is_legal' ) ) );
+
+			foreach ( $pagesresult as &$page ) {
+				// Remove shortcodes.
+				$page->post_content = strip_shortcodes( $page->post_content );
+
+				// Remove Gutenberg block tags like <!-- wp:paragraph -->
+				$page->post_content = preg_replace( '/<!--\s?\/?wp:[^>]+-->/', '', $page->post_content );
+
+				$page->post_content = trim( $page->post_content );
+			}
+			unset($page);
+
+			return $pagesresult;
+		}
+
+		/**
 		 * Enqueue admin common style and scripts.
 		 */
 		public function enqueue_common_style_scripts() {
@@ -1628,6 +1710,11 @@ if ( ! class_exists( 'WP_Legal_Pages_Admin' ) ) {
 			} else {
 				$_POST['lp-affiliate-disclosure'] = '0';
 			}
+			$is_block_enabled = '0';
+			if ( isset( $_POST['lp-enable-block'] ) && ( 'true' === $_POST['lp-enable-block'] ) ) {
+				$is_block_enabled = '1';
+			}
+			update_option( 'wplegalpages_is_block_enabled', $is_block_enabled );
 			if ( isset( $_POST['lp-is_adult'] ) && ( 'true' === $_POST['lp-is_adult'] || true === $_POST['lp-is_adult'] ) ) {
 				$_POST['lp-is_adult'] = '1';
 			} else {
