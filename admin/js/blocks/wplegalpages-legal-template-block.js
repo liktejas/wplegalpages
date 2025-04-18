@@ -8,7 +8,7 @@
 		InspectorControls,
 		withColors,
 	} = editor;
-	const { PanelBody, SelectControl } = components;
+	const { PanelBody, SelectControl, Notice } = components;
 
 	const generatedTemplate = wplp_localize_data?.all_legal_pages || [];
 
@@ -48,18 +48,29 @@
 					InspectorControls,
 					{},
 					el(PanelBody, { title: __('Settings'), initialOpen: true },
-						el(SelectControl, {
-							label: __('Select Template'),
-							value: template,
-							onChange: (newTemplate) => setAttributes({ template: newTemplate }),
-							options: [
-								{ value: '', label: 'Select Template', disabled: true },
-								...generatedTemplate.map((template) => ({
-									value: template.ID,
-									label: template.post_title || 'Untitled Page'
-								}))
-							]
-						})
+						generatedTemplate.length === 0
+							? el(Notice, { status: 'warning', isDismissible: false },
+								el('p', {}, [
+									__('No legal templates found. ', 'wplegalpages'),
+									el('a', {
+										href: wplp_localize_data.admin_url + 'index.php?page=wplegal-wizard#/',
+										target: '_blank',
+										rel: 'noopener noreferrer'
+									}, __('Please create a template first', 'wplegalpages'))
+								])
+							)
+							: el(SelectControl, {
+								label: __('Select Template'),
+								value: template,
+								onChange: (newTemplate) => setAttributes({ template: newTemplate }),
+								options: [
+									{ value: '', label: 'Select Template', disabled: true },
+									...generatedTemplate.map((template) => ({
+										value: template.ID,
+										label: template.post_title || 'Untitled Page'
+									}))
+								]
+							})
 					)
 				),
 				el('div', { className: className + ' has-text-align-' + alignment },
@@ -68,7 +79,7 @@
 							className: 'legal-template-content',
 							dangerouslySetInnerHTML: { __html: selectedTemplate.post_content }
 						}) :
-						el('p', { style: { color: 'red' } }, __('Select Template from the Settings', 'wplegalpages'))
+						el('p', { style: { color: '#000' } }, __('Select Template from the Settings', 'wplegalpages'))
 				)
 			);
 		}),

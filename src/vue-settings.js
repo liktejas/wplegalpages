@@ -42,6 +42,7 @@ var gen = new Vue({
             generate:null,
             search:null,
             affiliate_disclosure:null,
+            enable_block:null,
             is_adult:null,
             privacy:null,
             privacy_page: '',
@@ -110,6 +111,7 @@ var gen = new Vue({
             this.generate =  this.$refs.hasOwnProperty('generate')? this.$refs.generate.checked : null;
             this.search =  this.$refs.hasOwnProperty('search')? this.$refs.search.checked : null;
             this.affiliate_disclosure =this.$refs.hasOwnProperty('affiliate_disclosure')? this.$refs.affiliate_disclosure.checked:null;
+            this.enable_block =this.$refs.hasOwnProperty('enable_block')? this.$refs.enable_block.checked:null;
             this.is_adult = this.$refs.hasOwnProperty('is_adult')?this.$refs.is_adult.checked:null;
             this.privacy =this.$refs.hasOwnProperty('privacy')? this.$refs.privacy.checked:null;
             this.privacy_page = this.$refs.hasOwnProperty('privacy_page_mount') && this.$refs.privacy_page_mount.value ? this.$refs.privacy_page_mount.value : '';
@@ -159,6 +161,10 @@ var gen = new Vue({
         onChangeAffiliate(){
             this.affiliate_disclosure= !this.affiliate_disclosure;
             this.$refs.affiliate_disclosure.value = this.affiliate_disclosure ? '1' : '0';
+        },
+        onChangeEnableBlock(){
+            this.enable_block= !this.enable_block;
+            this.$refs.enable_block.value = this.enable_block ? '1' : '0';
         },
         onChangeIsAdult(){
             this.is_adult= !this.is_adult;

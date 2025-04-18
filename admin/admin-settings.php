@@ -53,6 +53,7 @@ $lp_eu_button_color      = get_option( 'lp_eu_button_color' );
 $lp_eu_button_text_color = get_option( 'lp_eu_button_text_color' );
 $lp_eu_link_color        = get_option( 'lp_eu_link_color' );
 $lp_eu_text_size         = get_option( 'lp_eu_text_size' );
+$is_blocked_enabled      = get_option( 'wplegalpages_is_block_enabled' );
 $lp_show_improved_ui     = true;
 if ( $lp_pro_installed && get_option( 'wplegalpages_pro_version' ) && version_compare( get_option( 'wplegalpages_pro_version' ), '8.4.0' ) < 0 ) {
 	$lp_show_improved_ui = false;
@@ -398,6 +399,18 @@ if ( '1' === $lpterms ) {
 									<c-col class="col-sm-2">
 										<c-switch v-bind="labelIcon" v-model="analytics_on" id="lp-analytics-on" variant="3d"  color="success" :checked="analytics_on" v-on:update:checked="onChangeAskForUsage"></c-switch>
 										<input type="hidden" name="lp-analytics-on" v-model="analytics_on">
+									</c-col>
+								</c-row>
+								<c-row class="wplegal-support-text-row">
+									<c-col class="col-sm-10">
+										<label><?php esc_attr_e( 'Show WPLP Block in Gutenberg', 'wplegalpages' ); ?></label>
+										<span class="wplegalpages-help-text">
+											<?php esc_html_e( 'Enable this option to add a Gutenberg block for easily inserting any of your generated legal policies directly into the editor.', 'wplegalpages' ); ?>
+										</span>
+									</c-col>
+									<c-col class="col-sm-2">
+										<input type="hidden" name="lp-enable-block" v-model="enable_block">
+										<c-switch v-bind="labelIcon" ref="enable_block" id="lp-enable-block" variant="3d" color="success" <?php checked( isset( $is_blocked_enabled ) ? boolval( $is_blocked_enabled ) : false ); ?> v-on:update:checked="onChangeEnableBlock"></c-col>
 									</c-col>
 								</c-row>
 							</c-card-body>
